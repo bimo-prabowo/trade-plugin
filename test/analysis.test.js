@@ -6,6 +6,7 @@ import {
   computeRsi,
   getTradingSession,
   isPlausibleCandle,
+  describeInstrument,
   roundToTick,
   sanitizeSymbol
 } from "../server.js";
@@ -32,6 +33,12 @@ describe("analysis helpers", () => {
     assert.equal(sanitizeSymbol(" es=f "), "ES=F");
     assert.equal(sanitizeSymbol("nq=f"), "NQ=F");
     assert.equal(sanitizeSymbol("../../etc/passwd"), "ES=F");
+  });
+
+  test("describes instrument labels for the dashboard header", () => {
+    assert.deepEqual(describeInstrument("ES=F"), { label: "MES/ES", priceLabel: "MES Price", root: "ES" });
+    assert.deepEqual(describeInstrument("MES=F"), { label: "MES/ES", priceLabel: "MES Price", root: "MES" });
+    assert.deepEqual(describeInstrument("NQ=F"), { label: "MNQ/NQ", priceLabel: "MNQ Price", root: "NQ" });
   });
 
   test("rounds futures prices to tick size", () => {

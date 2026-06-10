@@ -6,7 +6,9 @@ const els = {
   autoRefresh: document.querySelector("#autoRefresh"),
   statusStrip: document.querySelector("#statusStrip"),
   confidence: document.querySelector("#confidence"),
+  signalLabel: document.querySelector("#signalLabel"),
   action: document.querySelector("#action"),
+  priceLabel: document.querySelector("#priceLabel"),
   price: document.querySelector("#price"),
   session: document.querySelector("#session"),
   volume: document.querySelector("#volume"),
@@ -82,6 +84,8 @@ function render(data) {
   els.action.className = `action ${action}`;
 
   setPill(els.confidence, data.confidence || "LOW");
+  els.signalLabel.textContent = `${data.instrument?.label || data.symbol || "MES/ES"} signal`;
+  els.priceLabel.textContent = data.instrument?.priceLabel || `${data.symbol || "MES"} Price`;
   els.price.textContent = formatPrice(data.price);
   els.session.textContent = data.session?.label || "--";
   els.volume.textContent = data.volume?.status || "--";

@@ -132,6 +132,7 @@ async function buildAnalysis(symbol, accountSize) {
   return {
     generatedAt: new Date().toISOString(),
     symbol,
+    instrument: describeInstrument(symbol),
     contract: {
       mes: { label: "MES", dollarsPerPoint: 5, dollarsPerTick: 1.25 },
       es: { label: "ES", dollarsPerPoint: 50, dollarsPerTick: 12.5 },
@@ -1255,6 +1256,16 @@ function average(values) {
   return valid.reduce((sum, value) => sum + value, 0) / valid.length;
 }
 
+function describeInstrument(symbol) {
+  const profiles = {
+    "ES=F": { label: "MES/ES", priceLabel: "MES Price", root: "ES" },
+    "MES=F": { label: "MES/ES", priceLabel: "MES Price", root: "MES" },
+    "NQ=F": { label: "MNQ/NQ", priceLabel: "MNQ Price", root: "NQ" }
+  };
+
+  return profiles[symbol] || { label: symbol, priceLabel: `${symbol} Price`, root: symbol.replace(/=F$/, "") };
+}
+
 function sanitizeSymbol(symbol) {
   const normalized = String(symbol || DEFAULT_SYMBOL).trim().toUpperCase();
   return /^[A-Z0-9=.^-]{1,20}$/.test(normalized) ? normalized : DEFAULT_SYMBOL;
@@ -1314,6 +1325,7 @@ export {
   createDashboardServer,
   getTradingSession,
   isPlausibleCandle,
+  describeInstrument,
   roundToTick,
   sanitizeSymbol
 };
