@@ -18,6 +18,10 @@ Node v26.3.0 is verified for this project. If a non-interactive tool shell canno
 bash -lc 'npm start'
 ```
 
+## Alerts
+
+Enable the Alerts toggle in the dashboard to allow browser notifications. Alerts fire only after the currently selected symbol changes from WAIT to LONG or SHORT. The dashboard page must remain open, though it can be in a background tab or window.
+
 ## Test
 
 ```sh

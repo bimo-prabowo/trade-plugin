@@ -1,9 +1,12 @@
+import { buildSignalNotification, shouldNotifySignalChange } from "./alerts.js";
+
 const els = {
   controls: document.querySelector("#controls"),
   symbol: document.querySelector("#symbol"),
   account: document.querySelector("#account"),
   interval: document.querySelector("#interval"),
   autoRefresh: document.querySelector("#autoRefresh"),
+  alertsEnabled: document.querySelector("#alertsEnabled"),
   statusStrip: document.querySelector("#statusStrip"),
   confidence: document.querySelector("#confidence"),
   signalLabel: document.querySelector("#signalLabel"),
@@ -31,8 +34,12 @@ const els = {
   disclaimer: document.querySelector("#disclaimer")
 };
 
+const ALERTS_STORAGE_KEY = "signalDeckAlertsEnabled";
+
 let refreshTimer = null;
 let latestAnalysis = null;
+let previousAction = null;
+let previousSymbol = null;
 
 els.controls.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -41,10 +48,14 @@ els.controls.addEventListener("submit", (event) => {
 
 els.autoRefresh.addEventListener("change", scheduleRefresh);
 els.interval.addEventListener("change", scheduleRefresh);
+els.symbol.addEventListener("change", resetSignalMemory);
+els.account.addEventListener("change", resetSignalMemory);
+els.alertsEnabled.addEventListener("change", handleAlertsToggle);
 window.addEventListener("resize", () => {
   if (latestAnalysis) drawChart(latestAnalysis.chart);
 });
 
+initializeAlerts();
 loadAnalysis();
 scheduleRefresh();
 
@@ -63,8 +74,12 @@ async function loadAnalysis() {
       throw new Error(payload.message || "Analysis API failed.");
     }
 
+    const lastAction = previousSymbol === payload.symbol ? previousAction : null;
     latestAnalysis = payload;
     render(payload);
+    maybeNotifySignalChange(lastAction, payload);
+    previousAction = payload.action || "WAIT";
+    previousSymbol = payload.symbol || els.symbol.value;
     setStatus("ok", `Updated ${formatTime(payload.generatedAt)} from ${payload.source.name}.`);
   } catch (error) {
     setStatus("error", error.message || "Unable to load analysis.");
@@ -76,6 +91,85 @@ function scheduleRefresh() {
   if (refreshTimer) clearInterval(refreshTimer);
   if (!els.autoRefresh.checked) return;
   refreshTimer = setInterval(loadAnalysis, Number(els.interval.value));
+}
+
+function initializeAlerts() {
+  if (!supportsNotifications()) {
+    els.alertsEnabled.checked = false;
+    els.alertsEnabled.disabled = true;
+    els.alertsEnabled.closest("label").title = "Browser notifications are not supported here";
+    return;
+  }
+
+  els.alertsEnabled.checked = localStorage.getItem(ALERTS_STORAGE_KEY) === "true" && Notification.permission === "granted";
+}
+
+async function handleAlertsToggle() {
+  if (!els.alertsEnabled.checked) {
+    localStorage.setItem(ALERTS_STORAGE_KEY, "false");
+    setStatus("ok", "Signal alerts disabled.");
+    return;
+  }
+
+  const granted = await requestNotificationPermission();
+  els.alertsEnabled.checked = granted;
+  localStorage.setItem(ALERTS_STORAGE_KEY, granted ? "true" : "false");
+  setStatus(granted ? "ok" : "error", granted ? "Signal alerts enabled for WAIT to LONG/SHORT changes." : "Browser notification permission was not granted.");
+}
+
+function resetSignalMemory() {
+  previousAction = null;
+  previousSymbol = null;
+}
+
+function maybeNotifySignalChange(lastAction, analysis) {
+  if (!alertsAreActive()) return;
+  if (!shouldNotifySignalChange(lastAction, analysis.action)) return;
+
+  const notification = buildSignalNotification(analysis);
+  new Notification(notification.title, {
+    body: notification.body,
+    tag: `signal-deck-${analysis.symbol || "signal"}`,
+    requireInteraction: true
+  });
+  playAlertTone();
+}
+
+function alertsAreActive() {
+  return supportsNotifications() && els.alertsEnabled.checked && Notification.permission === "granted";
+}
+
+function supportsNotifications() {
+  return "Notification" in window;
+}
+
+async function requestNotificationPermission() {
+  if (!supportsNotifications()) return false;
+  if (Notification.permission === "granted") return true;
+  if (Notification.permission === "denied") return false;
+  return await Notification.requestPermission() === "granted";
+}
+
+function playAlertTone() {
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContext) return;
+
+  try {
+    const context = new AudioContext();
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+    oscillator.type = "sine";
+    oscillator.frequency.value = 880;
+    gain.gain.setValueAtTime(0.001, context.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.08, context.currentTime + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.45);
+    oscillator.connect(gain);
+    gain.connect(context.destination);
+    oscillator.start();
+    oscillator.stop(context.currentTime + 0.48);
+  } catch {
+    // Notification is the primary alert; audio is only a best-effort cue.
+  }
 }
 
 function render(data) {
