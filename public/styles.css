@@ -105,6 +105,12 @@ h2 {
   cursor: pointer;
 }
 
+.controls button.secondary {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--ink);
+}
+
 .toggle {
   grid-auto-flow: column;
   align-items: center;

@@ -20,7 +20,7 @@ bash -lc 'npm start'
 
 ## Alerts
 
-Enable the Alerts toggle in the dashboard to allow browser notifications. Alerts fire only after the currently selected symbol changes from WAIT to LONG or SHORT. The dashboard page must remain open, though it can be in a background tab or window.
+Enable the Alerts toggle in the dashboard to allow browser notifications. Alerts fire only after the currently selected symbol changes from WAIT to LONG or SHORT. Use Test Alert to preview the 880 Hz half-second tone. The dashboard page must remain open, though it can be in a background tab or window.
 
 ## Test
 

@@ -7,6 +7,7 @@ const els = {
   interval: document.querySelector("#interval"),
   autoRefresh: document.querySelector("#autoRefresh"),
   alertsEnabled: document.querySelector("#alertsEnabled"),
+  testAlert: document.querySelector("#testAlert"),
   statusStrip: document.querySelector("#statusStrip"),
   confidence: document.querySelector("#confidence"),
   signalLabel: document.querySelector("#signalLabel"),
@@ -51,6 +52,7 @@ els.interval.addEventListener("change", scheduleRefresh);
 els.symbol.addEventListener("change", resetSignalMemory);
 els.account.addEventListener("change", resetSignalMemory);
 els.alertsEnabled.addEventListener("change", handleAlertsToggle);
+els.testAlert.addEventListener("click", testAlertSound);
 window.addEventListener("resize", () => {
   if (latestAnalysis) drawChart(latestAnalysis.chart);
 });
@@ -120,6 +122,29 @@ async function handleAlertsToggle() {
 function resetSignalMemory() {
   previousAction = null;
   previousSymbol = null;
+}
+
+async function testAlertSound() {
+  playAlertTone();
+
+  if (supportsNotifications() && Notification.permission !== "denied") {
+    const granted = await requestNotificationPermission();
+    if (granted) {
+      const notification = buildSignalNotification(latestAnalysis || {
+        action: "LONG",
+        instrument: { label: "Signal Deck" },
+        price: null,
+        session: { label: "Test" },
+        confidence: "TEST"
+      });
+      new Notification(`Test ${notification.title}`, {
+        body: notification.body,
+        tag: "signal-deck-test"
+      });
+    }
+  }
+
+  setStatus("ok", "Played test alert tone.");
 }
 
 function maybeNotifySignalChange(lastAction, analysis) {
