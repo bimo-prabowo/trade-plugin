@@ -6,9 +6,11 @@
   "description": "Small MES/ES paper-trading dashboard with live API-backed analysis.",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "test": "node --test",
+    "test:watch": "node --test --watch"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=26"
   }
 }

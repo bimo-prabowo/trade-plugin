@@ -24,6 +24,14 @@ A no-dependency Python fallback is also included:
 python3 server.py
 ```
 
+## Test
+
+```sh
+npm test
+```
+
+The suite uses the Node built-in test runner, so no Jest install is required.
+
 ## API
 
 ```text

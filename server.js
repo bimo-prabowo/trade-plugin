@@ -23,7 +23,8 @@ const MIME_TYPES = {
 const PAPER_TRADING_DISCLAIMER =
   "Paper trading education only. This is not financial advice. Futures are leveraged instruments and can lose more than the initial deposit.";
 
-const server = http.createServer(async (req, res) => {
+function createDashboardServer() {
+  return http.createServer(async (req, res) => {
   try {
     const url = new URL(req.url || "/", `http://${req.headers.host || "localhost"}`);
 
@@ -45,11 +46,19 @@ const server = http.createServer(async (req, res) => {
       message: error instanceof Error ? error.message : "Unexpected server error"
     });
   }
-});
+  });
+}
 
-server.listen(PORT, () => {
-  console.log(`Signal Deck Futures dashboard running at http://localhost:${PORT}`);
-});
+if (isMainModule()) {
+  const server = createDashboardServer();
+  server.listen(PORT, () => {
+    console.log(`Signal Deck Futures dashboard running at http://localhost:${PORT}`);
+  });
+}
+
+function isMainModule() {
+  return process.argv[1] && normalize(fileURLToPath(import.meta.url)) === normalize(process.argv[1]);
+}
 
 async function handleAnalyze(url, res) {
   const symbol = sanitizeSymbol(url.searchParams.get("symbol") || DEFAULT_SYMBOL);
@@ -1296,3 +1305,15 @@ function sendText(res, status, message) {
   });
   res.end(message);
 }
+
+
+export {
+  buildAnalysis,
+  computeMacd,
+  computeRsi,
+  createDashboardServer,
+  getTradingSession,
+  isPlausibleCandle,
+  roundToTick,
+  sanitizeSymbol
+};
