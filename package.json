@@ -1,0 +1,14 @@
+{
+  "name": "signal-deck-futures-dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Small MES/ES paper-trading dashboard with live API-backed analysis.",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

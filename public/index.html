@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Signal Deck Futures</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Paper trading education</p>
+          <h1>Signal Deck Futures</h1>
+        </div>
+        <form class="controls" id="controls">
+          <label>
+            Symbol
+            <select id="symbol">
+              <option value="ES=F">ES=F</option>
+              <option value="MES=F">MES=F</option>
+              <option value="NQ=F">NQ=F</option>
+            </select>
+          </label>
+          <label>
+            Paper account
+            <input id="account" type="number" min="100" max="1000000" step="100" value="1000">
+          </label>
+          <label>
+            Refresh
+            <select id="interval">
+              <option value="15000">15s</option>
+              <option value="30000" selected>30s</option>
+              <option value="60000">60s</option>
+            </select>
+          </label>
+          <label class="toggle">
+            <input id="autoRefresh" type="checkbox" checked>
+            Auto
+          </label>
+          <button type="submit">Refresh</button>
+        </form>
+      </header>
+
+      <section class="status-strip" id="statusStrip" aria-live="polite">
+        <span class="dot loading"></span>
+        <span>Loading live analysis...</span>
+      </section>
+
+      <section class="dashboard-grid">
+        <article class="panel signal-panel">
+          <div class="panel-head">
+            <span class="label">MES/ES signal</span>
+            <span class="pill" id="confidence">--</span>
+          </div>
+          <div class="action" id="action">WAIT</div>
+          <dl class="metrics">
+            <div>
+              <dt>MES Price</dt>
+              <dd id="price">--</dd>
+            </div>
+            <div>
+              <dt>Session</dt>
+              <dd id="session">--</dd>
+            </div>
+            <div>
+              <dt>Volume</dt>
+              <dd id="volume">--</dd>
+            </div>
+            <div>
+              <dt>Gap</dt>
+              <dd id="gap">--</dd>
+            </div>
+          </dl>
+          <p class="note" id="sessionNote"></p>
+        </article>
+
+        <article class="panel chart-panel">
+          <div class="panel-head">
+            <span class="label">5-minute price map</span>
+            <span id="freshness" class="muted">--</span>
+          </div>
+          <canvas id="priceChart" width="900" height="320" aria-label="Price chart"></canvas>
+          <div class="chart-legend">
+            <span><i class="line price"></i> Price</span>
+            <span><i class="line vwap"></i> VWAP</span>
+            <span><i class="line level"></i> PDH/PDL</span>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <span class="label">Entry plan</span>
+          </div>
+          <dl class="plan-list" id="entryPlan"></dl>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <span class="label">Key levels</span>
+          </div>
+          <dl class="plan-list" id="keyLevels"></dl>
+        </article>
+
+        <article class="panel wide">
+          <div class="panel-head">
+            <span class="label">Scorecard</span>
+          </div>
+          <div class="scorecard" id="scorecard"></div>
+        </article>
+
+        <article class="panel wide">
+          <div class="panel-head">
+            <span class="label">Reasoning and risk</span>
+          </div>
+          <p id="reasoning" class="body-copy"></p>
+          <div class="two-column">
+            <div>
+              <h2>Exit triggers</h2>
+              <ul id="exitTriggers"></ul>
+            </div>
+            <div>
+              <h2>Risk rules</h2>
+              <ul id="riskRules"></ul>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel wide">
+          <div class="panel-head">
+            <span class="label">News impact</span>
+            <span class="pill" id="newsSentiment">NEUTRAL</span>
+          </div>
+          <p id="newsHeadline" class="body-copy"></p>
+          <p id="newsExplanation" class="muted"></p>
+          <div id="headlineList" class="headline-list"></div>
+        </article>
+
+        <article class="panel wide">
+          <div class="panel-head">
+            <span class="label">Sources and warnings</span>
+          </div>
+          <div id="warnings" class="warnings"></div>
+          <ul id="sources" class="sources"></ul>
+          <p id="disclaimer" class="disclaimer"></p>
+        </article>
+      </section>
+    </main>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
