@@ -18,12 +18,6 @@ Node v26.3.0 is verified for this project. If a non-interactive tool shell canno
 bash -lc 'npm start'
 ```
 
-A no-dependency Python fallback is also included:
-
-```sh
-python3 server.py
-```
-
 ## Test
 
 ```sh
